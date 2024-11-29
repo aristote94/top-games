@@ -26,38 +26,86 @@ const gamesList = [
 ];
 
 function writeDom() {
+    const articleContainer = document.querySelector(".row");
     gamesList.forEach((game) => {
-		const articleContainer = document.querySelector(".row")
-		articleContainer.innerHTML += `
-             <article class="col">
-                    <div class="card shadow-sm">
-                       <img src="${game.imageUrl}" alt="${game.title}" class="card-img-top" />
-                        <div class="card-body">
+        articleContainer.innerHTML += `
+            <article class="col">
+                <div class="card shadow-sm">
+                    <img src="${game.imageUrl}" alt="${game.title}" class="card-img-top" />
+                    <div class="card-body">
                         <h3 class="card-title">${game.title}</h3>
-                            <p class="card-text">Description du jeu.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                    <button 
+                        <p class="card-text">Description du jeu.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <button 
                                     type="button" 
-                                    class="btn btn-sm btn-outline-secondary"
+                                    class="btn btn-sm btn-outline-secondary edit"
                                     data-bs-toggle="modal" data-bs-target="#exampleModal"
-                                    >
+                                    data-edit-id="${game.id}">
+                                    Edit
+                                </button>
+                                <button 
+                                    type="button" 
+                                    class="btn btn-sm btn-outline-secondary view"
+                                    data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                    data-edit-id="${game.id}">
                                     View
                                 </button>
-                                    <button 
-                                    type="button" 
-                                    class="btn btn-sm btn-outline-secondary"
-                                    data-bs-toggle="modal" data-bs-target="#exampleModal"
-                                    >Edit
-                                </button>
-                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </article>
         `;
     });
 }
 
-
 // Appeler la fonction writeDom
 writeDom();
+
+// Sélectionner tous les boutons avec la classe .edit et ajouter un écouteur d'événements
+const editButtons = document.querySelectorAll(".edit");
+editButtons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+        editModal(e.target.getAttribute("data-edit-id"));
+    });
+});
+
+// Sélectionner tous les boutons avec la classe .view et ajouter un écouteur d'événements
+const viewButtons = document.querySelectorAll(".view");
+viewButtons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+        viewModal(e.target.getAttribute("data-edit-id"));
+    });
+});
+
+function editModal(gameId) {
+    const resultIndex = gamesList.findIndex((game) => game.id === parseInt(gameId));
+    if (resultIndex !== -1) {
+        const result = gamesList[resultIndex];
+        modifyModal("Mode Edition", result.title);
+        document.querySelector(".modal-body").innerHTML = `
+            <p>Titre: ${result.title}</p>
+            <p>Année: ${result.year}</p>
+            <img src="${result.imageUrl}" alt="${result.title}" class="img-fluid">
+        `;
+    }
+}
+
+function viewModal(gameId) {
+    const resultIndex = gamesList.findIndex((game) => game.id === parseInt(gameId));
+    if (resultIndex !== -1) {
+        const result = gamesList[resultIndex];
+        modifyModal(result.title, result.title);
+        document.querySelector(".modal-body").innerHTML = `
+            <p>Titre: ${result.title}</p>
+            <p>Année: ${result.year}</p>
+            <img src="${result.imageUrl}" alt="${result.title}" class="img-fluid">
+        `;
+    }
+}
+
+function modifyModal(modalTitle, gameTitle) {
+    document.querySelector(".modal-title").textContent = modalTitle;
+    document.querySelector(".modal-title").textContent = gameTitle;
+}

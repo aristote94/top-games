@@ -1,10 +1,5 @@
 const gamesList = [
-    {
-        title: "Game Title",
-        year: 2022,
-        imageUrl: "https://example.com/image.jpg",
-        id: 1,
-    },
+
     {
         title: "Street Fighter V",
         year: 2015,
@@ -82,13 +77,12 @@ viewButtons.forEach((btn) => {
 function editModal(gameId) {
     const resultIndex = gamesList.findIndex((game) => game.id === parseInt(gameId));
     if (resultIndex !== -1) {
-        const result = gamesList[resultIndex];
-        modifyModal("Mode Edition", result.title);
-        document.querySelector(".modal-body").innerHTML = `
-            <p>Titre: ${result.title}</p>
-            <p>Année: ${result.year}</p>
-            <img src="${result.imageUrl}" alt="${result.title}" class="img-fluid">
-        `;
+        fetch("./form.html")
+            .then(response => response.text())
+            .then(form => {
+                modifyModal("Mode Edition", form);
+            })
+            .catch(error => console.error('Error fetching form.html:', error));
     }
 }
 
@@ -105,7 +99,7 @@ function viewModal(gameId) {
     }
 }
 
-function modifyModal(modalTitle, gameTitle) {
+function modifyModal(modalTitle, modalBody) {
     document.querySelector(".modal-title").textContent = modalTitle;
-    document.querySelector(".modal-title").textContent = gameTitle;
+    document.querySelector(".modal-body").innerHTML = modalBody;
 }

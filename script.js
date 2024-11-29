@@ -1,5 +1,10 @@
 const gamesList = [
-
+    {
+        title: "Game Title",
+        year: 2022,
+        imageUrl: "https://example.com/image.jpg",
+        id: 1,
+    },
     {
         title: "Street Fighter V",
         year: 2015,
@@ -59,7 +64,7 @@ function writeDom() {
 writeDom();
 
 // Sélectionner tous les boutons avec la classe .edit et ajouter un écouteur d'événements
-const editButtons = document.querySelectorAll(".edit");
+let editButtons = document.querySelectorAll(".edit");
 editButtons.forEach((btn) => {
     btn.addEventListener("click", (e) => {
         editModal(e.target.getAttribute("data-edit-id"));
@@ -77,12 +82,37 @@ viewButtons.forEach((btn) => {
 function editModal(gameId) {
     const resultIndex = gamesList.findIndex((game) => game.id === parseInt(gameId));
     if (resultIndex !== -1) {
+        const selectedGame = gamesList[resultIndex];
         fetch("./form.html")
-            .then(response => response.text())
+            .then(data => data.text())
             .then(form => {
                 modifyModal("Mode Edition", form);
+                modifyForm({
+                    title: selectedGame.title,
+                    year: selectedGame.year,
+                    imageUrl: selectedGame.imageUrl,
+                });
+                const formElement = document.querySelector("form");
+                document.querySelector('button[type="submit"]').addEventListener("click", (e) => {
+                    e.preventDefault();
+                    updateGames(
+                        formElement.querySelector("#title").value,
+                        formElement.querySelector("#year").value,
+                        formElement.querySelector("#imageUrl").value,
+                        gameId
+                    );
+                });
             })
             .catch(error => console.error('Error fetching form.html:', error));
+    }
+}
+
+function modifyForm(gameData) {
+    const form = document.querySelector("form");
+    if (form) {
+        form.querySelector("#title").value = gameData.title;
+        form.querySelector("#year").value = gameData.year;
+        form.querySelector("#imageUrl").value = gameData.imageUrl;
     }
 }
 
@@ -97,6 +127,21 @@ function viewModal(gameId) {
             <img src="${result.imageUrl}" alt="${result.title}" class="img-fluid">
         `;
     }
+}
+
+function updateGames(title, year, imageUrl, gameId) {
+    const index = gamesList.findIndex((game) => game.id === parseInt(gameId));
+    gamesList[index].title = title;
+    gamesList[index].year = year;
+    gamesList[index].imageUrl = imageUrl;
+    document.querySelector(".row").innerHTML = ""; // Nous supprimons toutes les données des jeux dans le DOM.
+    writeDom();
+    editButtons = document.querySelectorAll(".edit");
+    editButtons.forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            editModal(e.target.getAttribute("data-edit-id"));
+        });
+    });
 }
 
 function modifyModal(modalTitle, modalBody) {
